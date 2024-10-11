@@ -1,4 +1,4 @@
-import sys
+njijdwfijfwrjfijrjfr3gn3jrg3rgimport sys
 from bot import bot
 
 if __name__ == '__main__':
