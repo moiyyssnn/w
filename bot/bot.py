@@ -1,4 +1,4 @@
-ji24ijjigniimport os
+import os
 import threading
 import asyncio
 from bot.painter import painters
@@ -7,14 +7,14 @@ from bot.utils import night_sleep, Colors
 from bot.notpx import NotPx
 from telethon.sync import TelegramClient
 
-def multrg4thithread_starter():
+def multithread_starter():
     dirs = os.listdir("sessions/")
     sessions = list(filter(lambda x: x.endswith(".session"), dirs))
     sessions = list(map(lambda x: x.split(".session")[0], sessions))
     
     for session_name in sessions:
         try:
-            cli = NotPx("sessions/" r3gn35gin5ij5gff4f4gf3gg35g45t+ session_name)
+            cli = NotPx("sessions/" + session_name)
 
             # Define a wrapper function to run the async function in the thread
             def run_painters():
