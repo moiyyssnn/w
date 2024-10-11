@@ -88,7 +88,7 @@ def process():
     | |\  | (_) | |_| |    >  <  | |_/ / (_) | |_ 
     \_| \_/\___/ \__\_|   /_/\_\ \____/ \___/ \__|
                                                 
-            NotPx Auto Paint & Claim by @savanopo - v1.0 {}""".format(Colors.BLUE, Colors.END))
+            NotPx Auto Paint & Claim by @savanop - v1.0 {}""".format(Colors.BLUE, Colors.END))
     while True:
         option = input("[!] {}Enter 1{} For Adding Account, {}2{} for start mine + claim, {}3{} for add API ID and Hash, {}4{} to reset API credentials, {}5{} to reset session: ".format(
             Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END))
