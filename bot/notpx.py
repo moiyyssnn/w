@@ -9,47 +9,40 @@ from bot.utils import Colors
 import random
 report_bug_text = "If you have done all the steps correctly and you think this is a bug, report it to github.com/ALICL0ner with response. response: {}"
 class NotPx:
-    def __init__(self, session_name: str) -> None:
+    def __init__(self, session_name:str) -> None:
         self.session = requests.Session()
-
-        # Proxy setup
         if config.USE_PROXY:
             self.session.proxies = {
-                "http": config.PROXIE,
-                "https": config.PROXIE,
-            }
+                    "http": config.PROXIES,
+                    "https": config.PROXIES, 
+                }
             try:
                 if "http" not in self.session.proxies or "https" not in self.session.proxies:
                     raise ValueError(f"{Colors.RED}[ERROR]{Colors.END} Both 'http' and 'https' proxies must be defined.")
                 print(f"Using proxy: {self.session.proxies}")
                 response = requests.get('https://app.notpx.app/', proxies=self.session.proxies)
-                response.raise_for_status()
-                print(f"{Colors.GREEN}Proxy is working correctly.{Colors.END}")
+                print(response.raise_for_status())
+                print("{}Proxy is working correctly.{}".format(Colors.GREEN, Colors.END))
             except requests.exceptions.ProxyError as e:
-                print(f"{Colors.RED}Proxy failed:{Colors.END} {e}")
-                raise SystemExit(f"{Colors.RED}[ERROR]{Colors.END} Proxy is not working. Exiting...")
+                print("{}Proxy failed:{} {}".format(Colors.RED, Colors.END,e))
+                raise SystemExit("{}[ERROR]{} Proxy is not working. Exiting...".format(Colors.RED, Colors.END))
             except requests.exceptions.ConnectionError as e:
-                print(f"{Colors.RED}Connection error:{Colors.END} {e}")
-                raise SystemExit(f"{Colors.RED}[ERROR]{Colors.END} Connection error. Exiting...")
-            except requests.exceptions.RequestException as e:
-                print(f"{Colors.RED}An unexpected error occurred:{Colors.END} {e}")
-                raise SystemExit(f"{Colors.RED}[ERROR]{Colors.END} Unexpected error. Exiting...")
-
+                print("{}Connection error:{} {}".format(Colors.RED, Colors.END,e))
+                raise SystemExit("{}[ERROR]{} Connection error. Exiting...".format(Colors.RED, Colors.END))
+            except requests.exceptions.Exception as e:
+                print("{}An unexpected error occurred:{} {}".format(Colors.RED, Colors.END,e))
+                raise SystemExit("{}[ERROR]{} Unexpected error. Exiting...".format(Colors.RED, Colors.END))
         self.session_name = session_name
+        self.__update_headers()
 
-    # Create an async initialization method
-    async def init_async(self):
-        await self.__update_headers()
-
-    async def __update_headers(self):
-        # Using async with to manage Telegram client lifecycle
-        async with TelegramClient(self.session_name, config.API_ID, config.API_HASH) as client:
-            WebAppQuery = await self.GetWebAppData(client)  # Properly await the coroutine
-
-        # Set the headers with the fetched WebAppQuery
+    def __update_headers(self):
+        client = TelegramClient(self.session_name, config.API_ID, config.API_HASH).start()
+        WebAppQuery = client.loop.run_until_complete(self.GetWebAppData(client))
+        client.disconnect()
         self.session.headers = {
             'Authorization': f'initData {WebAppQuery}',
         }
+
     async def GetWebAppData(self, client):
         notcoin = await client.get_entity("notpixel")
         msg = await client(functions.messages.RequestWebViewRequest(notcoin,notcoin,platform="android",url="https://notpx.app/"))
