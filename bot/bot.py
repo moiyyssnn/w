@@ -24,7 +24,7 @@ def multithread_starter():
             asyncio.run_coroutine_threadsafe(mine_claimer(cli, session_name), loop)
 
         except Exception as e:
-            print("[!] {}Error on load session{} \"{}\", error: {}".format(Colors.RED, Colors.END, session_name, e))
+            print("[!] {}Error loading session{} \"{}\", error: {}".format(Colors.RED, Colors.END, session_name, e))
 
 def add_api_credentials():
     api_id = input("Enter API ID: ")
@@ -59,6 +59,21 @@ def reset_session():
     except (ValueError, IndexError):
         print("[!] Invalid choice. Please try again.")
 
+def show_sessions():
+    sessions = [f for f in os.listdir("sessions/") if f.endswith(".session")]
+    if not sessions:
+        print("[!] No sessions found.")
+        return
+    
+    print(f"\n{Colors.BLUE}{'='*40}{Colors.END}")
+    print(f"{Colors.GREEN}{'Available Sessions:':^40}{Colors.END}")  # Centered title
+    print(f"{Colors.BLUE}{'='*40}{Colors.END}")
+    
+    for session in sessions:
+        print(f"{Colors.YELLOW}{session[:-8].upper():^40}{Colors.END}")  # Uppercase and centered session names
+
+    print(f"{Colors.BLUE}{'='*40}{Colors.END}")
+
 def load_api_credentials():
     env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'env.txt')
     if os.path.exists(env_path):
@@ -73,6 +88,18 @@ def load_api_credentials():
                     api_hash = line.split('=')[1].strip()
             return api_id, api_hash
     return None, None
+
+def display_menu():
+    print(f"\n{Colors.BLUE}{'='*40}{Colors.END}")
+    print(f"{Colors.GREEN}         NotPx Auto Paint & Claim{Colors.END}")
+    print(f"{Colors.BLUE}{'='*40}{Colors.END}")
+    print(f"{Colors.YELLOW}1. Add Account{Colors.END}")
+    print(f"{Colors.YELLOW}2. Start Mining + Claiming{Colors.END}")
+    print(f"{Colors.YELLOW}3. Add API ID and Hash{Colors.END}")
+    print(f"{Colors.YELLOW}4. Reset API Credentials{Colors.END}")
+    print(f"{Colors.YELLOW}5. Reset Session{Colors.END}")
+    print(f"{Colors.YELLOW}6. Show Sessions{Colors.END}")  # New option
+    print(f"{Colors.BLUE}{'='*40}{Colors.END}")
 
 def process():
     if not os.path.exists("sessions"):
@@ -89,8 +116,9 @@ def process():
             NotPx Auto Paint & Claim by @savanop - v1.0 {}""".format(Colors.BLUE, Colors.END))
     
     while True:
-        option = input("\n[!] {}Enter 1{} For Adding Account, {}2{} for start mine + claim, {}3{} for add API ID and Hash, {}4{} to reset API credentials, {}5{} to reset session: ".format(
-            Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END))
+        display_menu()
+        
+        option = input(f"\n[!] Enter your choice (1-6): ")  # Updated to 6 options
         
         if option == "1":
             name = input("\nEnter Session name: ")
@@ -117,6 +145,9 @@ def process():
             
         elif option == "5":
             reset_session()
+            
+        elif option == "6":
+            show_sessions()  # Call the show_sessions function
             
         else:
             print("[!] Invalid option. Please try again.")
