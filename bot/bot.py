@@ -7,6 +7,9 @@ from bot.utils import night_sleep, Colors
 from bot.notpx import NotPx
 from telethon.sync import TelegramClient
 
+# Global event loop variable
+loop = asyncio.get_event_loop()
+
 def multithread_starter():
     dirs = os.listdir("sessions/")
     sessions = list(filter(lambda x: x.endswith(".session"), dirs))
@@ -16,16 +19,10 @@ def multithread_starter():
         try:
             cli = NotPx("sessions/" + session_name)
 
-            # Define a wrapper function to run the async function in the thread
-            def run_painters():
-                asyncio.run(painters(cli, session_name))
+            # Schedule the painters and mine_claimer functions in the event loop
+            asyncio.run_coroutine_threadsafe(painters(cli, session_name), loop)
+            asyncio.run_coroutine_threadsafe(mine_claimer(cli, session_name), loop)
 
-            def run_mine_claimer():
-                asyncio.run(mine_claimer(cli, session_name))
-
-            # Start threads for painters and mine_claimer
-            threading.Thread(target=run_painters).start()
-            threading.Thread(target=run_mine_claimer).start()
         except Exception as e:
             print("[!] {}Error on load session{} \"{}\", error: {}".format(Colors.RED, Colors.END, session_name, e))
 
@@ -80,7 +77,8 @@ def load_api_credentials():
 def process():
     if not os.path.exists("sessions"):
         os.mkdir("sessions")
-    print(r"""{}
+        
+    print(r"""{}  
     _   _       _  ______       ______       _   
     | \ | |     | | | ___ \      | ___ \     | |  
     |  \| | ___ | |_| |_/ /_  __ | |_/ / ___ | |_ 
@@ -89,9 +87,11 @@ def process():
     \_| \_/\___/ \__\_|   /_/\_\ \____/ \___/ \__|
                                                 
             NotPx Auto Paint & Claim by @savanop - v1.0 {}""".format(Colors.BLUE, Colors.END))
+    
     while True:
-        option = input("[!] {}Enter 1{} For Adding Account, {}2{} for start mine + claim, {}3{} for add API ID and Hash, {}4{} to reset API credentials, {}5{} to reset session: ".format(
+        option = input("\n[!] {}Enter 1{} For Adding Account, {}2{} for start mine + claim, {}3{} for add API ID and Hash, {}4{} to reset API credentials, {}5{} to reset session: ".format(
             Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END, Colors.BLUE, Colors.END))
+        
         if option == "1":
             name = input("\nEnter Session name: ")
             if not any(name in i for i in os.listdir("sessions/")):
@@ -99,19 +99,27 @@ def process():
                 if api_id and api_hash:
                     client = TelegramClient("sessions/" + name, api_id, api_hash).start()
                     client.disconnect()
-                    print("[+] Session {} {}saved success{}.".format(name, Colors.GREEN, Colors.END))
+                    print("[+] Session {} {}saved successfully{}.".format(name, Colors.GREEN, Colors.END))
                 else:
                     print("[!] API credentials not found. Please add them first.")
             else:
-                print("[x] Session {} {}already exist{}.".format(name, Colors.RED, Colors.END))
+                print("[x] Session {} {}already exists{}.".format(name, Colors.RED, Colors.END))
+                
         elif option == "2":
             multithread_starter()
             break
+            
         elif option == "3":
             add_api_credentials()
+            
         elif option == "4":
             reset_api_credentials()
+            
         elif option == "5":
             reset_session()
+            
         else:
             print("[!] Invalid option. Please try again.")
+
+if __name__ == "__main__":
+    process()
