@@ -1,6 +1,7 @@
 import os
 import threading
 import asyncio
+import platform  # Import platform module
 from bot.painter import painters
 from bot.mineclaimer import mine_claimer
 from bot.utils import night_sleep, Colors
@@ -101,7 +102,12 @@ def display_menu():
     print(f"{Colors.YELLOW}6. Show Sessions{Colors.END}")  # New option
     print(f"{Colors.BLUE}{'='*40}{Colors.END}")
 
+def clear_console():
+    # Clear the console based on the operating system
+    os.system('cls' if platform.system() == 'Windows' else 'clear')
+
 def process():
+    clear_console()  # Clear console at the start of the process
     if not os.path.exists("sessions"):
         os.mkdir("sessions")
         
