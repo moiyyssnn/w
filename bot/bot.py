@@ -27,6 +27,17 @@ def multithread_starter():
         except Exception as e:
             print("[!] {}Error loading session{} \"{}\", error: {}".format(Colors.RED, Colors.END, session_name, e))
 
+def start_single_session(session_name):
+    try:
+        cli = NotPx("sessions/" + session_name)
+
+        # Schedule the painters and mine_claimer functions in the event loop
+        asyncio.run_coroutine_threadsafe(painters(cli, session_name), loop)
+        asyncio.run_coroutine_threadsafe(mine_claimer(cli, session_name), loop)
+
+    except Exception as e:
+        print("[!] {}Error loading session{} \"{}\", error: {}".format(Colors.RED, Colors.END, session_name, e))
+
 def add_api_credentials():
     api_id = input("Enter API ID: ")
     api_hash = input("Enter API Hash: ")
@@ -95,11 +106,12 @@ def display_menu():
     print(f"{Colors.GREEN}         NotPx Auto Paint & Claim{Colors.END}")
     print(f"{Colors.BLUE}{'='*40}{Colors.END}")
     print(f"{Colors.YELLOW}1. Add Account{Colors.END}")
-    print(f"{Colors.YELLOW}2. Start Mining + Claiming{Colors.END}")
-    print(f"{Colors.YELLOW}3. Add API ID and Hash{Colors.END}")
-    print(f"{Colors.YELLOW}4. Reset API Credentials{Colors.END}")
-    print(f"{Colors.YELLOW}5. Reset Session{Colors.END}")
-    print(f"{Colors.YELLOW}6. Show Sessions{Colors.END}")  # New option
+    print(f"{Colors.YELLOW}2. Start Mining + Claiming (All Sessions){Colors.END}")
+    print(f"{Colors.YELLOW}3. Start Mining + Claiming (Single Session){Colors.END}")  # New option for single session
+    print(f"{Colors.YELLOW}4. Add API ID and Hash{Colors.END}")
+    print(f"{Colors.YELLOW}5. Reset API Credentials{Colors.END}")
+    print(f"{Colors.YELLOW}6. Reset Session{Colors.END}")
+    print(f"{Colors.YELLOW}7. Show Sessions{Colors.END}")  # New option
     print(f"{Colors.BLUE}{'='*40}{Colors.END}")
 
 def clear_console():
@@ -124,7 +136,7 @@ def process():
     while True:
         display_menu()
         
-        option = input(f"\n[!] Enter your choice (1-6): ")  # Updated to 6 options
+        option = input(f"\n[!] Enter your choice (1-7): ")  # Updated to 7 options
         
         if option == "1":
             name = input("\nEnter Session name: ")
@@ -144,15 +156,31 @@ def process():
             break
             
         elif option == "3":
+            # Prompt user for single session choice
+            sessions = [f for f in os.listdir("sessions/") if f.endswith(".session")]
+            if not sessions:
+                print("[!] No sessions found.")
+            else:
+                print("Available sessions:")
+                for i, session in enumerate(sessions, 1):
+                    print(f"{i}. {session[:-8]}")
+                choice = input("Enter the number of the session to start mining: ")
+                try:
+                    session_to_run = sessions[int(choice) - 1].split(".session")[0]
+                    start_single_session(session_to_run)  # Call the function to start a single session
+                except (ValueError, IndexError):
+                    print("[!] Invalid choice. Please try again.")
+                
+        elif option == "4":
             add_api_credentials()
             
-        elif option == "4":
+        elif option == "5":
             reset_api_credentials()
             
-        elif option == "5":
+        elif option == "6":
             reset_session()
             
-        elif option == "6":
+        elif option == "7":
             show_sessions()  # Call the show_sessions function
             
         else:
